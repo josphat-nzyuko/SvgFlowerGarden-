@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Flower Garden Animation</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <style>
+    body {
+      background: #0f172a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    svg {
+      width: 800px;
+      height: 400px;
+      border-bottom: 2px solid #334155;
+    }
+  </style>
+</head>
+<body>
+
+  <svg id="garden" viewBox="0 0 800 400">
+    </svg>
+
+  <script>
+    const garden = document.querySelector("#garden");
+
+    /**
+     * Creates a flower at a specific X position with a specific petal color
+     * @param {number} x - Horizontal position
+     * @param {string} petalColor - CSS color (hex, name, etc.)
+     */
+    function createFlower(x, petalColor) {
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      
+      // Stem
+      const stem = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      stem.setAttribute("d", `M${x} 380 Q${x} 280 ${x} 200`);
+      stem.setAttribute("stroke", "#4ade80");
+      stem.setAttribute("stroke-width", "3");
+      stem.setAttribute("fill", "none");
+
+      // Leaves
+      const leaf1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      leaf1.setAttribute("d", `M${x} 300 Q${x - 20} 280 ${x - 10} 260`);
+      leaf1.setAttribute("stroke", "#4ade80");
+      leaf1.setAttribute("stroke-width", "2");
+      leaf1.setAttribute("fill", "none");
+
+      const leaf2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      leaf2.setAttribute("d", `M${x} 260 Q${x + 20} 240 ${x + 10} 220`);
+      leaf2.setAttribute("stroke", "#4ade80");
+      leaf2.setAttribute("stroke-width", "2");
+      leaf2.setAttribute("fill", "none");
+
+      // Center
+      const center = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      center.setAttribute("cx", x);
+      center.setAttribute("cy", "200");
+      center.setAttribute("r", "5");
+      center.setAttribute("fill", "#fbbf24");
+
+      group.appendChild(stem);
+      group.appendChild(leaf1);
+      group.appendChild(leaf2);
+
+      // Creating 5 Petals dynamically
+      const petals = [];
+      const angleStep = (Math.PI * 2) / 5;
+      const distance = 8; // distance from center
+
+      for (let i = 0; i < 5; i++) {
+        const petal = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        const angle = i * angleStep;
+        
+        // Calculating petal position based on center (x, 200)
+        const px = x + Math.cos(angle) * distance;
+        const py = 200 + Math.sin(angle) * distance;
+        
+        petal.setAttribute("cx", px);
+        petal.setAttribute("cy", py);
+        petal.setAttribute("r", "5");
+        petal.setAttribute("fill", petalColor);
+        
+        group.appendChild(petal);
+        petals.push(petal);
+      }
+
+      // Adds center last so it sits on top of petals
+      group.appendChild(center);
+      garden.appendChild(group);
+
+      animateFlower(stem, leaf1, leaf2, center, petals);
+    }
+
+    function animateFlower(stem, leaf1, leaf2, center, petals) {
+      const tl = gsap.timeline();
+
+      // Animate Stem
+      tl.from(stem, {
+        duration: 1.5,
+        strokeDasharray: 300,
+        strokeDashoffset: 300,
+        ease: "power1.out"
+      })
+      // Animate Leaves
+      .from([leaf1, leaf2], {
+        duration: 0.8,
+        strokeDasharray: 100,
+        strokeDashoffset: 100,
+        stagger: 0.2
+      }, "-=0.5")
+      // Animate Petals (Pop in)
+      .from(petals, {
+        duration: 0.5,
+        scale: 0,
+        transformOrigin: "center center",
+        stagger: 0.1,
+        ease: "back.out(1.7)"
+      }, "-=0.3")
+      // Animate Center
+      .from(center, {
+        duration: 0.4,
+        scale: 0,
+        transformOrigin: "center center"
+      }, "-=0.5");
+    }
+
+    //the three colored garden!
+    createFlower(100, "#fca5a5"); // Pink
+    createFlower(250, "#f87171"); // Red
+    createFlower(400, "#818cf8"); // Blue
+    createFlower(550, "#c084fc"); // Purple
+    createFlower(700, "#fb923c"); // Orange
+    createFlower(850, "#34d399"); // Green
+    createFlower(1000, "#fbbf24"); // Yellow
+
+  </script>
+</body>
+</html>
